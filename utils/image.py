@@ -411,25 +411,28 @@ def pixelToGrid(pts, target_resolution: (int, int),
 # HÀM QUAN TRỌNG NHẤT ĐÃ ĐƯỢC SỬA LẠI ĐỂ TRÁNH NAN
 # =========================================================================
 def normalizeImage(image: np.ndarray, mask=None, channel_wise_mean=True) -> np.ndarray:
-    """
-    Thay vì chuẩn hóa z-score (Mean/Std) dễ gây NaN,
-    Ta chỉ scale về khoảng [0, 1] bằng cách chia cho 255.
-    Cách này an toàn tuyệt đối.
-    """
     image = toNumpy(image).astype(np.float32)
 
     # 1. Scale về [0, 1]
     image = image / 255.0
 
-    # 2. Xử lý Mask (Gán 0 cho vùng không hợp lệ)
+    # 2. Xử lý Mask
     if mask is not None:
-        if image.ndim == 3 and mask.ndim == 2:
-            # Nếu image màu (H, W, 3) và mask (H, W)
-            image[mask, :] = 0.0
-        else:
-            image[mask] = 0.0
+        # --- FIX QUAN TRỌNG: Ép Mask về 2D ---
+        # Nếu mask có 3 chiều (H, W, 3), chỉ lấy kênh đầu tiên
+        if mask.ndim == 3:
+            mask = mask[:, :, 0]
+        
+        # Đảm bảo mask là kiểu boolean chuẩn
+        mask = mask.astype(bool)
+        # -------------------------------------
+
+        # Gán 0 cho vùng không hợp lệ
+        # (Numpy đủ thông minh để tự broadcast mask 2D lên ảnh 3D hoặc 2D)
+        image[mask] = 0.0
 
     return image
+
 # =========================================================================
 
 ## image file I/O =================================
