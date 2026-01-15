@@ -74,7 +74,7 @@ parser.add_argument('--mixed_precision', action='store_true', help='use mixed pr
 parser.add_argument('--fix_bn', action='store_true', help='fix batch normalization')
 
 # training options
-parser.add_argument('--total_epochs', type=int, default=30, help='total epochs of training')
+parser.add_argument('--total_epochs', type=int, default=500, help='total epochs of training')
 parser.add_argument('--batch_size', type=int, default=4, help='batch size')
 parser.add_argument('--train_iters', type=int, default=12,
                     help="number of updates to the disparity field in each forward pass.")
