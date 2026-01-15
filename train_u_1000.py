@@ -75,12 +75,12 @@ parser.add_argument('--fix_bn', action='store_true', help='fix batch normalizati
 
 # training options
 parser.add_argument('--total_epochs', type=int, default=30, help='total epochs of training')
-parser.add_argument('--batch_size', type=int, default=1, help='batch size')
+parser.add_argument('--batch_size', type=int, default=4, help='batch size')
 parser.add_argument('--train_iters', type=int, default=12,
                     help="number of updates to the disparity field in each forward pass.")
 parser.add_argument('--valid_iters', type=int, default=12,
                     help='number of flow-field updates during validation forward pass')
-parser.add_argument('--lr', type=float, default=0.0001, help="max learning rate.")
+parser.add_argument('--lr', type=float, default=0.0005, help="max learning rate.")
 parser.add_argument('--wdecay', type=float, default=.00001, help="Weight decay in optimizer.")
 
 args = parser.parse_args()
