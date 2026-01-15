@@ -114,23 +114,62 @@ def pixelToGrid(pts, target_resolution: (int, int),
     ys = ys.reshape((h, w, 1))
     return concat((xs, ys), 2)
 
+# def normalizeImage(image: np.ndarray, mask=None,
+#                    channel_wise_mean=True) -> np.ndarray:
+#     image = toNumpy(image)
+#     def __normalizeImage1D(image, mask):
+#         image = image.squeeze().astype(np.float32)
+#         if mask is not None: image[mask] = np.nan
+#         # normalize intensities
+#         # image = (image - np.nanmean(image.flatten())) / \
+#         #     np.nanstd(image.flatten())
+#         std_val = np.nanstd(image.flatten())
+#         if std_val < 1e-7:
+#             std_val = 1e-7 # Tránh chia cho 0
+        
+#         image = (image - np.nanmean(image.flatten())) / std_val
+
+#         if mask is not None: image[mask] = 0
+#         return image
+#     if len(image.shape) == 3 and image.shape[2] == 3:
+#         if channel_wise_mean:
+#             return np.concatenate(
+#                 [__normalizeImage1D(image[:,:,i], mask)[..., np.newaxis] 
+#                     for i in range(3)], axis=2)
+#         else:
+#             image = image.squeeze().astype(np.float32)
+#             mask = np.tile(mask[..., np.newaxis], (1, 1, 3))
+#             if mask is not None: image[mask] = np.nan
+#             # normalize intensities
+#             image = (image - np.nanmean(image.flatten())) / \
+#                 np.nanstd(image.flatten())
+#             if mask is not None: image[mask] = 0
+#             return image
+#     else:
+#         return __normalizeImage1D(image, mask)
+
 def normalizeImage(image: np.ndarray, mask=None,
                    channel_wise_mean=True) -> np.ndarray:
     image = toNumpy(image)
+    
     def __normalizeImage1D(image, mask):
         image = image.squeeze().astype(np.float32)
         if mask is not None: image[mask] = np.nan
-        # normalize intensities
-        # image = (image - np.nanmean(image.flatten())) / \
-        #     np.nanstd(image.flatten())
-        std_val = np.nanstd(image.flatten())
-        if std_val < 1e-7:
-            std_val = 1e-7 # Tránh chia cho 0
         
-        image = (image - np.nanmean(image.flatten())) / std_val
-
+        # --- FIX: TRÁNH CHIA CHO 0 ---
+        mean_val = np.nanmean(image.flatten())
+        std_val = np.nanstd(image.flatten())
+        
+        # Nếu std quá nhỏ (ảnh đồng màu hoặc đen), gán giá trị nhỏ để tránh lỗi
+        if std_val < 1e-6:
+            std_val = 1e-6
+            
+        image = (image - mean_val) / std_val
+        # -----------------------------
+        
         if mask is not None: image[mask] = 0
         return image
+
     if len(image.shape) == 3 and image.shape[2] == 3:
         if channel_wise_mean:
             return np.concatenate(
@@ -140,13 +179,20 @@ def normalizeImage(image: np.ndarray, mask=None,
             image = image.squeeze().astype(np.float32)
             mask = np.tile(mask[..., np.newaxis], (1, 1, 3))
             if mask is not None: image[mask] = np.nan
-            # normalize intensities
-            image = (image - np.nanmean(image.flatten())) / \
-                np.nanstd(image.flatten())
+            
+            # --- FIX CHO TRƯỜNG HỢP NÀY ---
+            mean_val = np.nanmean(image.flatten())
+            std_val = np.nanstd(image.flatten())
+            if std_val < 1e-6:
+                std_val = 1e-6
+            image = (image - mean_val) / std_val
+            # ------------------------------
+            
             if mask is not None: image[mask] = 0
             return image
     else:
         return __normalizeImage1D(image, mask)
+
 
 ## image file I/O =================================
 

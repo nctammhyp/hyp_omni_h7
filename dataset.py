@@ -318,7 +318,8 @@ class Dataset(torch.utils.data.Dataset):
 
         # --- THÊM ĐOẠN NÀY ---
         # Thay thế NaN hoặc Inf bằng -1 (giá trị không hợp lệ) để không tính loss
-        gt_idx = np.nan_to_num(gt_idx, nan=-1.0, posinf=-1.0, neginf=-1.0)
+        # gt_idx = np.nan_to_num(gt_idx, nan=-1.0, posinf=-1.0, neginf=-1.0)
+        gt_idx = np.nan_to_num(gt_idx, nan=0.0, posinf=0.0, neginf=0.0)
         # ---------------------
 
         if not remove_gt_noise:
