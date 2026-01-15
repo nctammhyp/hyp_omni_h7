@@ -80,7 +80,7 @@ parser.add_argument('--train_iters', type=int, default=12,
                     help="number of updates to the disparity field in each forward pass.")
 parser.add_argument('--valid_iters', type=int, default=12,
                     help='number of flow-field updates during validation forward pass')
-parser.add_argument('--lr', type=float, default=0.0005, help="max learning rate.")
+parser.add_argument('--lr', type=float, default=0.0001, help="max learning rate.")
 parser.add_argument('--wdecay', type=float, default=.00001, help="Weight decay in optimizer.")
 
 args = parser.parse_args()

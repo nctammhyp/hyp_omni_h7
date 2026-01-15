@@ -121,8 +121,14 @@ def normalizeImage(image: np.ndarray, mask=None,
         image = image.squeeze().astype(np.float32)
         if mask is not None: image[mask] = np.nan
         # normalize intensities
-        image = (image - np.nanmean(image.flatten())) / \
-            np.nanstd(image.flatten())
+        # image = (image - np.nanmean(image.flatten())) / \
+        #     np.nanstd(image.flatten())
+        std_val = np.nanstd(image.flatten())
+        if std_val < 1e-7:
+            std_val = 1e-7 # Tránh chia cho 0
+        
+        image = (image - np.nanmean(image.flatten())) / std_val
+
         if mask is not None: image[mask] = 0
         return image
     if len(image.shape) == 3 and image.shape[2] == 3:
