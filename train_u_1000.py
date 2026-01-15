@@ -217,10 +217,10 @@ def train(epoch_total, load_state):
             train_loss += loss.detach().item()
             epoch_loss = train_loss / (step + 1)
 
-            # if step % 50 == 0:
-            #     print(f"Step {step}, Iter {total_iters}: Loss = {loss.item():.3f}, "
-            #           f"Average Loss = {epoch_loss:.3f}, Time = {time.time() - start_time:.2f}s")
-            #     writer.add_scalar("train/loss", loss.item(), total_iters)
+            if step % 50 == 0:
+                print(f"Step {step}, Iter {total_iters}: Loss = {loss.item():.3f}, "
+                      f"Average Loss = {epoch_loss:.3f}, Time = {time.time() - start_time:.2f}s")
+                writer.add_scalar("train/loss", loss.item(), total_iters)
 
             # --- Backward + optimizer
             scaler.scale(loss).backward()
