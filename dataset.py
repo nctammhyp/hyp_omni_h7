@@ -259,10 +259,14 @@ class Dataset(torch.utils.data.Dataset):
         elif ext == '.tif' or ext == '.tiff':
             # return readImageFloat(path)
             # readImageFloat trả về (img, thumbnail), ta chỉ lấy img (biến đầu tiên)
-            val = readImageFloat(path)
-            if isinstance(val, tuple):
-                return val[0]
-            return val
+            # val = readImageFloat(path)
+            # if isinstance(val, tuple):
+            #     return val[0]
+            # return val
+            step_invdepth = (self.max_invdepth - self.min_invdepth) / 255.0
+            quantized_inv_index = readImage(path).astype(np.float32)
+            invdepth = self.min_invdepth + quantized_inv_index * step_invdepth
+            return invdepth
         else:
             return np.fromfile(path, dtype=np.float32)
     
