@@ -10,14 +10,10 @@ def normalize(img):
     return (img - minv) / (maxv - minv + 1e-8)
 
 def main(path):
-    # Load image
-    if path.endswith(".npy"):
-        img = np.load(path)
-    else:
-        img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+    img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
 
     if img is None:
-        print("❌ Cannot load file:", path)
+        print("❌ Cannot load:", path)
         return
 
     print("Loaded:", path)
@@ -25,20 +21,37 @@ def main(path):
     print("shape:", img.shape)
     print("min/max:", img.min(), img.max())
 
-    # Normalize for visualization
+    # ===== CASE 1: Already RGB (colormapped) =====
+    if len(img.shape) == 3 and img.shape[2] == 3:
+        print("Detected: Color image → show directly")
+        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+        plt.figure(figsize=(12, 4))
+        plt.imshow(img_rgb)
+        plt.title("Colormapped Prediction")
+        plt.axis('off')
+        plt.show()
+        return
+
+    # ===== CASE 2: Single channel =====
+    img = img.astype(np.float32)
+    minv = img.min()
+    maxv = img.max()
+
+    print("Depth min/max:", minv, maxv)
+
     img_norm = normalize(img)
 
-    # Show
     plt.figure(figsize=(12, 4))
     plt.imshow(img_norm, cmap='jet')
     plt.colorbar()
-    plt.title(path)
+    plt.title("Prediction (normalized + jet)")
     plt.axis('off')
     plt.show()
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python show_pred.py your_prediction.tiff")
-        sys.exit(0)
+        print("Usage: python test_vis.py path_to_prediction")
+        exit()
 
     main(sys.argv[1])
