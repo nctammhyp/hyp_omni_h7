@@ -4,6 +4,7 @@
 #
 # Modified by Hualie Jiang (jianghualie0@gmail.com)
 
+from copy import deepcopy
 import os
 import os.path as opts
 import sys
@@ -266,6 +267,15 @@ class Dataset(torch.utils.data.Dataset):
             step_invdepth = (self.max_invdepth - self.min_invdepth) / 255.0
             quantized_inv_index = readImage(path).astype(np.float32)
             invdepth = self.min_invdepth + quantized_inv_index * step_invdepth
+
+            tmp = deepcopy(invdepth)
+
+            tmp = invdepth.astype(np.float32)
+            minv = np.min(tmp)
+            maxv = np.max(tmp)
+
+            print("min/max:", minv, maxv)
+
             return invdepth
         else:
             return np.fromfile(path, dtype=np.float32)
