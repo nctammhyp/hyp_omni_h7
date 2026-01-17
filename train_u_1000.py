@@ -161,13 +161,13 @@ def train(epoch_total, load_state):
     if load_state:
         # --- load checkpoint or pretrain
         if opts.snapshot_path and osp.exists(opts.snapshot_path):
-            snapshot = torch.load(opts.snapshot_path)
+            snapshot = torch.load(opts.snapshot_path, weights_only=False)
             if 'net_state_dict' in snapshot: net.load_state_dict(snapshot['net_state_dict'])
             if 'epoch' in snapshot: start_epoch = snapshot['epoch'] + 1
             if 'optimizer' in snapshot: optimizer.load_state_dict(snapshot['optimizer'])
             LOG_INFO(f'Loaded snapshot: {opts.snapshot_path}')
         elif opts.pretrain_path and osp.exists(opts.pretrain_path):
-            snapshot = torch.load(opts.pretrain_path)
+            snapshot = torch.load(opts.pretrain_path, weights_only=False)
             if 'net_state_dict' in snapshot: net.load_state_dict(snapshot['net_state_dict'])
             LOG_INFO(f'Loaded pretrain: {opts.pretrain_path}')
 
