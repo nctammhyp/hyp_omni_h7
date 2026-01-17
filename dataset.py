@@ -262,7 +262,7 @@ class Dataset(torch.utils.data.Dataset):
             # readImageFloat trả về (img, thumbnail), ta chỉ lấy img (biến đầu tiên)
             val = readImageFloat(path)
 
-            tmp = deepcopy(val)
+            tmp = deepcopy(val[0])
             img = tmp.astype(np.float32)
             minv = img.min()
             maxv = img.max()
