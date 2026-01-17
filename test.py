@@ -30,6 +30,8 @@ parser.add_argument('--name', default='ROmniStereo', help="name of your experime
 parser.add_argument('--restore_ckpt', help="restore checkpoint")
 
 parser.add_argument('--db_root', default=r'.\omnidata', type=str, help='path to dataset')
+# parser.add_argument('--dbname', default='hyp_sync_1', type=str,
+#                     choices=['itbt_sample', 'real_indoor_sample', 'hyp_sync_1'], help='databases to test')
 parser.add_argument('--dbname', default='hyp_sync_1', type=str,
                     choices=['itbt_sample', 'real_indoor_sample', 'hyp_sync_1'], help='databases to test')
 
@@ -108,6 +110,9 @@ def main():
             invdepth_idx = net(imgs, grids, opts.valid_iters, test_mode=True)
         invdepth_idx = toNumpy(invdepth_idx[0, 0])
         invdepth = data.indexToInvdepth(invdepth_idx)
+
+        print(invdepth.min(), invdepth.max())
+        print(invdepth)
 
         # Visualization
         if opts.vis or opts.save_misc or opt.save_point_cloud:

@@ -253,13 +253,13 @@ class Dataset(torch.utils.data.Dataset):
     def readInvdepth(self, path: str) -> np.ndarray:
         _, ext = osp.splitext(path)
         if ext == '.png':
-            # print("****************    use png file")
+            print("****************    use png file")
             step_invdepth = (self.max_invdepth - self.min_invdepth) / 255.0
             quantized_inv_index = readImage(path).astype(np.float32)
             invdepth = self.min_invdepth + quantized_inv_index * step_invdepth
             return invdepth
         elif ext == '.tif' or ext == '.tiff':
-            # print("****************    use tiff file")
+            print("****************    use tiff file")
 
             # return readImageFloat(path)
             # readImageFloat trả về (img, thumbnail), ta chỉ lấy img (biến đầu tiên)
@@ -306,81 +306,81 @@ class Dataset(torch.utils.data.Dataset):
         return (inv_depth - self.min_invdepth) / \
             self.sample_step_invdepth + start_index
     
-    def loadGTInvdepthIndex(self, fidx, remove_gt_noise=True,
-                            morph_win_size=5):
-        h, w = self.equirect_size
-        gt_depth_file = osp.join(self.db_path, self.gt_depth_fmt % (w, fidx))
-        
-        # Đọc ảnh
-        gt = self.readInvdepth(gt_depth_file)
-
-        # FIX 1: Xử lý nếu hàm đọc trả về tuple (ảnh, thumbnail)
-        if isinstance(gt, tuple):
-            gt = gt[0]
-
-        # FIX 2: Nếu là ảnh uint8 (0-255), chuyển sang float32 ngay lập tức
-        if gt.dtype == np.uint8:
-            gt = gt.astype(np.float32)
-            # TÙY CHỌN: Nếu ảnh uint8 này biểu diễn index từ 0-255,
-            # mà num_invdepth của bạn là 192.
-            # Có thể bạn cần scale lại hoặc giữ nguyên. 
-            # Tạm thời giữ nguyên, các giá trị > 192 sẽ bị loại bỏ ở bước valid_mask.
-
-        # FIX 3: Xử lý ảnh màu (3 kênh) -> lấy 1 kênh
-        if len(gt.shape) == 3:
-            gt = gt[:, :, 0]
-
-        # FIX 4: Resize về đúng kích thước train (w, h)
-        # Sử dụng kích thước từ args (thường là 640x160)
-        if gt.shape[0] != h or gt.shape[1] != w:
-            gt = cv2.resize(gt, (w, h), interpolation=cv2.INTER_NEAREST)
-
-        # Chuyển đổi sang index (nếu gt là depth mét) hoặc giữ nguyên (nếu gt đã là index)
-        # Với dữ liệu synthetic uint8, thường nó ĐÃ LÀ Inverse Depth Index được lưu dạng ảnh.
-        # Nên ta dùng thẳng gt làm index.
-        gt_idx = gt 
-        
-        # --- QUAN TRỌNG: Làm sạch dữ liệu ---
-        gt_idx = np.nan_to_num(gt_idx, nan=-1.0, posinf=-1.0, neginf=-1.0)
-
-        if not remove_gt_noise:
-            return gt_idx
-
-        # Tạo mask valid: Chỉ lấy các giá trị nằm trong khoảng [0, 192)
-        valid_mask = (gt_idx >= 0) & (gt_idx < self.num_invdepth)
-        
-        # Nếu ảnh uint8 có nền trắng (255), nó sẽ bị loại ở đây, tránh lỗi NaN
-        
-        # Gán các pixel không hợp lệ thành -1
-        final_gt = gt_idx.copy()
-        final_gt[~valid_mask] = -1
-        
-        return final_gt
-
     # def loadGTInvdepthIndex(self, fidx, remove_gt_noise=True,
     #                         morph_win_size=5):
     #     h, w = self.equirect_size
     #     gt_depth_file = osp.join(self.db_path, self.gt_depth_fmt % (w, fidx))
+        
+    #     # Đọc ảnh
     #     gt = self.readInvdepth(gt_depth_file)
-    #     gt_h = gt.shape[0]
-    #     # crop height
-    #     if h < gt_h:
-    #         sh = int(round((gt_h - h) / 2.0))
-    #         gt = gt[sh:sh + h, :]
 
-    #     gt_idx = self.invdepthToIndex(gt)
+    #     # FIX 1: Xử lý nếu hàm đọc trả về tuple (ảnh, thumbnail)
+    #     if isinstance(gt, tuple):
+    #         gt = gt[0]
+
+    #     # FIX 2: Nếu là ảnh uint8 (0-255), chuyển sang float32 ngay lập tức
+    #     if gt.dtype == np.uint8:
+    #         gt = gt.astype(np.float32)
+    #         # TÙY CHỌN: Nếu ảnh uint8 này biểu diễn index từ 0-255,
+    #         # mà num_invdepth của bạn là 192.
+    #         # Có thể bạn cần scale lại hoặc giữ nguyên. 
+    #         # Tạm thời giữ nguyên, các giá trị > 192 sẽ bị loại bỏ ở bước valid_mask.
+
+    #     # FIX 3: Xử lý ảnh màu (3 kênh) -> lấy 1 kênh
+    #     if len(gt.shape) == 3:
+    #         gt = gt[:, :, 0]
+
+    #     # FIX 4: Resize về đúng kích thước train (w, h)
+    #     # Sử dụng kích thước từ args (thường là 640x160)
+    #     if gt.shape[0] != h or gt.shape[1] != w:
+    #         gt = cv2.resize(gt, (w, h), interpolation=cv2.INTER_NEAREST)
+
+    #     # Chuyển đổi sang index (nếu gt là depth mét) hoặc giữ nguyên (nếu gt đã là index)
+    #     # Với dữ liệu synthetic uint8, thường nó ĐÃ LÀ Inverse Depth Index được lưu dạng ảnh.
+    #     # Nên ta dùng thẳng gt làm index.
+    #     gt_idx = gt 
+        
+    #     # --- QUAN TRỌNG: Làm sạch dữ liệu ---
+    #     gt_idx = np.nan_to_num(gt_idx, nan=-1.0, posinf=-1.0, neginf=-1.0)
+
     #     if not remove_gt_noise:
     #         return gt_idx
-    #     # make valid mask
-    #     morph_filter = np.ones(
-    #         (morph_win_size, morph_win_size), dtype=np.uint8)
-    #     finite_depth = gt >= 1e-3 # <= 1000 m
-    #     closed_depth = scipy.ndimage.binary_closing(
-    #         finite_depth, morph_filter) 
-    #     infinite_depth = np.logical_not(finite_depth)
-    #     infinite_hole = np.logical_and(infinite_depth, closed_depth)
-    #     gt_idx[infinite_hole] = -1
-    #     return gt_idx
+
+    #     # Tạo mask valid: Chỉ lấy các giá trị nằm trong khoảng [0, 192)
+    #     valid_mask = (gt_idx >= 0) & (gt_idx < self.num_invdepth)
+        
+    #     # Nếu ảnh uint8 có nền trắng (255), nó sẽ bị loại ở đây, tránh lỗi NaN
+        
+    #     # Gán các pixel không hợp lệ thành -1
+    #     final_gt = gt_idx.copy()
+    #     final_gt[~valid_mask] = -1
+        
+    #     return final_gt
+
+    def loadGTInvdepthIndex(self, fidx, remove_gt_noise=True,
+                            morph_win_size=5):
+        h, w = self.equirect_size
+        gt_depth_file = osp.join(self.db_path, self.gt_depth_fmt % (w, fidx))
+        gt = self.readInvdepth(gt_depth_file)
+        gt_h = gt.shape[0]
+        # # crop height
+        # if h < gt_h:
+        #     sh = int(round((gt_h - h) / 2.0))
+        #     gt = gt[sh:sh + h, :]
+
+        gt_idx = self.invdepthToIndex(gt)
+        if not remove_gt_noise:
+            return gt_idx
+        # make valid mask
+        morph_filter = np.ones(
+            (morph_win_size, morph_win_size), dtype=np.uint8)
+        finite_depth = gt >= 1e-3 # <= 1000 m
+        closed_depth = scipy.ndimage.binary_closing(
+            finite_depth, morph_filter) 
+        infinite_depth = np.logical_not(finite_depth)
+        infinite_hole = np.logical_and(infinite_depth, closed_depth)
+        gt_idx[infinite_hole] = -1
+        return gt_idx
 
 
 
