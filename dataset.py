@@ -253,7 +253,7 @@ class Dataset(torch.utils.data.Dataset):
     def readInvdepth(self, path: str) -> np.ndarray:
         _, ext = osp.splitext(path)
         if ext == '.png':
-            print("****************    use png file")
+            # print("****************    use png file")
             step_invdepth = (self.max_invdepth - self.min_invdepth) / 255.0
             quantized_inv_index = readImage(path).astype(np.float32)
             invdepth = self.min_invdepth + quantized_inv_index * step_invdepth
