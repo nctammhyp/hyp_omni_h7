@@ -88,7 +88,7 @@ class Dataset(torch.utils.data.Dataset):
         # ------------------ default opts ------------------
         opts = Edict()
         opts.img_fmt = 'cam%d/%04d.png'
-        opts.gt_depth_fmt = 'omnidepth_gt_%d/%05d.tiff'
+        opts.gt_depth_fmt = 'omnidepth_gt_%d/%05d.png'
         opts.equirect_size, opts.num_invdepth = [160, 640], 192
         opts.num_downsample = 1
         opts.phi_deg, opts.phi2_deg = 45, -1.0
@@ -253,11 +253,14 @@ class Dataset(torch.utils.data.Dataset):
     def readInvdepth(self, path: str) -> np.ndarray:
         _, ext = osp.splitext(path)
         if ext == '.png':
-            step_invdepth = (self.max_invdepth - self.min_invdepth) / 65500.0
+            print("****************    use png file")
+            step_invdepth = (self.max_invdepth - self.min_invdepth) / 255.0
             quantized_inv_index = readImage(path).astype(np.float32)
             invdepth = self.min_invdepth + quantized_inv_index * step_invdepth
             return invdepth
         elif ext == '.tif' or ext == '.tiff':
+            print("****************    use tiff file")
+
             # return readImageFloat(path)
             # readImageFloat trả về (img, thumbnail), ta chỉ lấy img (biến đầu tiên)
             # val = readImageFloat(path)
@@ -284,7 +287,7 @@ class Dataset(torch.utils.data.Dataset):
     def writeInvdepth(self, invdepth: np.ndarray, path: str) -> None:
         _, ext = osp.splitext(path)
         if ext == '.png':
-            step_invdepth = (self.max_invdepth - self.min_invdepth) / 65500.0
+            step_invdepth = (self.max_invdepth - self.min_invdepth) / 255.0
             quantized_inv_index = (invdepth - self.min_invdepth) / step_invdepth
             writeImage(quantized_inv_index.round().astype(np.uint16), path)
         elif ext == '.tif' or ext == '.tiff':
